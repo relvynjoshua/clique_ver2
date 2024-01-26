@@ -8,17 +8,13 @@ import {
   Dimensions,
   TouchableOpacity,
   FlatList,
-  TextInput,
-  StatusBar,
-  ScrollView
+  TextInput
 } from 'react-native';
 import moment from 'moment';
 import Swiper from 'react-native-swiper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import color from '../../assets/colors'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-const { height, width } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function Example() {
   // date slider
@@ -124,177 +120,114 @@ export default function Example() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-        <StatusBar backgroundColor={color.first} barStyle={"light-content"}/>
-        <ScrollView>
-          <View style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.header1}>
-                    <Text style={styles.logo}>.Clique</Text>
-                </View>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Calendar</Text>
+        </View>
 
-                <View style={styles.header2}>
-                    <Text style={styles.title}>Calendar</Text>
-                </View>
-            </View>
+        <View style={styles.picker}>
+          <Swiper
+            index={1}
+            ref={swiper}
+            loop={false}
+            showsPagination={false}
+            onIndexChanged={ind => {
+              if (ind === 1) {
+                return;
+              }
+              setTimeout(() => {
+                const newIndex = ind - 1;
+                const newWeek = week + newIndex;
+                setWeek(newWeek);
+                setValue(moment(value).add(newIndex, 'week').toDate());
+                swiper.current.scrollTo(1, false);
+              }, 100);
+            }}>
+            {weeks.map((dates, index) => (
+              <View
+                style={[styles.itemRow, { paddingHorizontal: 16 }]}
+                key={index}>
+                {dates.map((item, dateIndex) => {
+                  const isActive =
+                    value.toDateString() === item.date.toDateString();
+                  return (
+                    <TouchableWithoutFeedback
+                      key={dateIndex}
+                      onPress={() => setValue(item.date)}>
+                      <View
+                        style={[
+                          styles.item,
+                          isActive && {
+                            backgroundColor: '#111',
+                            borderColor: '#111',
+                          },
+                        ]}>
+                        <Text
+                          style={[
+                            styles.itemWeekday,
+                            isActive && { color: '#fff' },
+                          ]}>
+                          {item.weekday}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.itemDate,
+                            isActive && { color: '#fff' },
+                          ]}>
+                          {item.date.getDate()}
+                        </Text>
+                      </View>
+                    </TouchableWithoutFeedback>
+                  );
+                })}
+              </View>
+            ))}
+          </Swiper>
+        </View>
 
-            <View style={styles.main}>
-                <View style={styles.section1}>
-                    <View style={styles.picker}>
-                        <Swiper
-                            index={1}
-                            ref={swiper}
-                            loop={false}
-                            showsPagination={false}
-                            onIndexChanged={ind => {
-                            if (ind === 1) {
-                                return;
-                            }
-                            setTimeout(() => {
-                                const newIndex = ind - 1;
-                                const newWeek = week + newIndex;
-                                setWeek(newWeek);
-                                setValue(moment(value).add(newIndex, 'week').toDate());
-                                swiper.current.scrollTo(1, false);
-                            }, 100);
-                            }}>
-                            {weeks.map((dates, index) => (
-                            <View
-                                style={[styles.itemRow, { paddingHorizontal: 16 }]}
-                                key={index}>
-                                {dates.map((item, dateIndex) => {
-                                const isActive =
-                                    value.toDateString() === item.date.toDateString();
-                                return (
-                                    <TouchableWithoutFeedback
-                                    key={dateIndex}
-                                    onPress={() => setValue(item.date)}>
-                                    <View
-                                        style={[
-                                        styles.item,
-                                        isActive && {
-                                            backgroundColor: '#111',
-                                            borderColor: '#111',
-                                        },
-                                        ]}>
-                                        <Text
-                                        style={[
-                                            styles.itemWeekday,
-                                            isActive && { color: '#fff' },
-                                        ]}>
-                                        {item.weekday}
-                                        </Text>
-                                        <Text
-                                        style={[
-                                            styles.itemDate,
-                                            isActive && { color: '#fff' },
-                                        ]}>
-                                        {item.date.getDate()}
-                                        </Text>
-                                    </View>
-                                    </TouchableWithoutFeedback>
-                                );
-                                })}
-                            </View>
-                            ))}
-                        </Swiper>
-                    </View>
-                </View>
-
-                <View style={styles.section2}>
-                    <View style={{ flex: 1, paddingHorizontal: 16, }}>
-                        <Text style={styles.subtitle}>{value.toDateString()}</Text>
-                        <View style={styles.placeholder}>
-                            <View style={styles.placeholderInset}>
-                            <FlatList
-                                data={tasks.filter(item => moment(item.date).isSame(value, 'day'))}
-                                renderItem={renderItem}
-                                keyExtractor={(item, index) => index.toString()}
-                            />
-                            </View>
-                        </View>
-                    </View>
-                </View>
-            </View>
-
-            <View style={styles.footer}>
-              <TextInput 
-              style={styles.input} 
-              placeholder=' New event '
-              value={task}
-              onChangeText={(text) => setTask(text)}
+        <View style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 24 }}>
+          <Text style={styles.subtitle}>{value.toDateString()}</Text>
+          <View style={styles.placeholder}>
+            <View style={styles.placeholderInset}>
+              <FlatList
+                  data={tasks.filter(item => moment(item.date).isSame(value, 'day'))}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => index.toString()}
               />
-              <TouchableOpacity
-                onPress={handleAddTask}>
-                <View style={styles.btn}>
-                  <Text style={styles.btnText}>Add</Text>
-                </View>
-              </TouchableOpacity>
             </View>
-
           </View>
-        </ScrollView>
+        </View>
+
+        <View style={styles.footer}>
+          <TextInput 
+          style={styles.input} 
+          placeholder=' New event '
+          value={task}
+          onChangeText={(text) => setTask(text)}
+          />
+
+          <TouchableOpacity
+            onPress={handleAddTask}>
+            <View style={styles.btn}>
+              <Text style={styles.btnText}>Add</Text>
+            </View>
+          </TouchableOpacity>
+
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-    /* Container and Sections */
-  container: {
-    height: hp(100),
-    backgroundColor: color.white,
-  },
-  header: {
-    height: hp(10),
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  header1: {
-    width: wp(50),
-    backgroundColor: color.first,
-    justifyContent: 'center',
-  },
-  header2: {
-    width: wp(50),
-    backgroundColor: color.first,
-    justifyContent: 'center',
-  },
-  main: {
-    height: hp(70),
-    backgroundColor: color.white,
-  },
-  section1: {
-    height: hp(10),
-    backgroundColor: color.white,
-    justifyContent: 'center',
-  },
-  section2: {
-    height: hp(60),
-    backgroundColor: color.white,
-  },
-  footer: {
-    height: hp(20),
-    backgroundColor: color.white,
-  },
+  // date slider
 
-  /* Header */
-  logo: {
-    fontSize: hp(3.4),
-    color: color.black,
-    fontFamily: 'sans-serif',
-    fontWeight: 'bold',
-    textAlign: 'left',
-    marginLeft: hp(2),
-  },
   title: {
-    fontSize: hp(3.4),
-    color: color.black,
-    fontFamily: 'sans-serif',
-    fontWeight: 'bold',
-    textAlign: 'right',
-    marginRight: hp(2),
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1d1d1d',
+    marginBottom: 12,
   },
-
-  /* Display */
   placeholder: {
     flexGrow: 1,
     flexShrink: 1,
@@ -305,28 +238,54 @@ const styles = StyleSheet.create({
   },
   placeholderInset: {
     borderWidth: 4,
-    borderColor: color.grey,
+    borderColor: '#e5e7eb',
     borderStyle: 'dashed',
     borderRadius: 9,
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
   },
-  
-  /* Date Slider */
+  btn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#04BB9C',
+    margin: 3,
+  },
+  btnText: {
+    fontSize: 18,
+    lineHeight: 26,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  container: {
+    flex: 1,
+    paddingVertical: 50,
+  },
   picker: {
     flex: 1,
+    maxHeight: 74,
     paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
   },
   subtitle: {
-    fontSize: hp(3),
+    fontSize: 30,
     fontWeight: '700',
-    color: color.first,
-    marginBottom: hp(1),
+    color: '#04BB9C',
+    marginBottom: 12,
+  },
+  header: {
+    paddingHorizontal: 16,
   },
   content: {
+    paddingHorizontal: 16,
+  },
+  footer: {
+    marginTop: 'auto',
     paddingHorizontal: 16,
   },
   itemRow: {
@@ -338,78 +297,60 @@ const styles = StyleSheet.create({
   },
   item: {
     flex: 1,
-    height: 60,
+    height: 50,
     marginHorizontal: 4,
     paddingVertical: 6,
     paddingHorizontal: 4,
     borderWidth: 1,
     borderRadius: 8,
-    borderColor: color.grey,
+    borderColor: '#e3e3e3',
     flexDirection: 'column',
     alignItems: 'center',
   },
   itemWeekday: {
-    fontSize: hp(1.6),
+    fontSize: 13,
     fontWeight: '500',
     color: '#737373',
-    marginBottom: 1,
+    marginBottom: 4,
   },
   itemDate: {
-    fontSize: hp(1.6),
+    fontSize: 15,
     fontWeight: '600',
-    color: color.black,
+    color: '#111',
   },
 
-  /* Agenda Modifier */
+  // agenda modifier
+
   input: {
+    margin: 3,
     paddingVertical: 8,
-    paddingHorizontal: 8, 
-    borderColor: color.first, 
-    borderWidth: 4,
+    paddingHorizontal: 8,
+    borderWidth: 4, 
+    borderColor: '#04BB9C', 
     borderRadius: 6, 
-    fontSize: hp(2),
-    marginLeft: 10,
-    marginRight: 10,
-    marginTop: hp(1),
+    fontSize: 18
   },
   text: {
     alignItems: 'center',
-    color: color.black,
-    fontSize: hp(2),
+    color: '#004aad',
+    fontSize: 22,
     fontWeight: 'bold',
   },
-  btn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: color.first,
-    marginLeft: 10,
-    marginRight: 10,
-    marginTop: hp(1),
-  },
-  btnText: {
-    fontSize: hp(2),
-    lineHeight: 26,
-    fontWeight: '600',
-    color: color.white,
-  },
 
-  /* Add, Edit, Delete */
+  //add, edit, and delete agenda
+
   task: {
     flexDirection: "row", 
     justifyContent: "space-between", 
     alignItems: "center", 
-    marginTop: hp(.4),
-    marginBottom: hp(.4), 
-    fontSize: hp(2), 
+    marginTop: 1,
+    marginBottom: 1, 
+    fontSize: 18, 
   },
   itemList: {
-    margin: hp(1),
+    margin: 14,
     color: '#000',
-    fontSize: hp(2),
+    fontSize: 20,
   },
   taskButtons: { 
     flexDirection: "row", 
@@ -417,9 +358,9 @@ const styles = StyleSheet.create({
   editButton: { 
     marginRight: 15,
     textAlign: 'center', 
-    color: color.black, 
-    fontSize: hp(2), 
-    backgroundColor: color.grey,
+    color: "#454655", 
+    fontSize: 18, 
+    backgroundColor: '#ccc',
     width: 70,
     height: 30,
     borderRadius: 6,
@@ -428,8 +369,8 @@ const styles = StyleSheet.create({
     marginRight: 20, 
     textAlign: 'center', 
     color: "#AD0500", 
-    fontSize: hp(2), 
-    backgroundColor: color.grey,
+    fontSize: 18, 
+    backgroundColor: '#ccc',
     width: 90,
     height: 30,
     borderRadius: 6,

@@ -1,11 +1,13 @@
 import styled from 'styled-components';
 
+
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
   padding-top: 90px;
   align-items: center;
   justify-content: center;
+ 
 `;
 
 export const Card = styled.TouchableOpacity`
@@ -14,11 +16,11 @@ export const Card = styled.TouchableOpacity`
 
 export const UserInfo = styled.View`
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: space-between;
 `;
 
 export const UserImgWrapper = styled.View`
-  padding-vertical: 25px;
+  padding-vertical: 15px;
 `;
 
 export const UserImg = styled.Image`
@@ -45,17 +47,17 @@ export const UserInfoText = styled.View`
 `;
 
 export const UserName = styled.Text`
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
 `;
 
 export const PostTime = styled.Text`
-  font-size: 16px;
+  font-size: 12px;
   color: #666;
   font-family: 'monospace';
 `;
 
 export const MessageText = styled.Text`
-  font-size: 16px;
+  font-size: 14px;
   color: #333333;
 `;

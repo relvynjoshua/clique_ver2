@@ -29,6 +29,7 @@ function MainContainer() {
           if (rn === homeName) {
             iconName = focused ? 'home' : 'home-outline';
           } else if (rn === detailsName) {
+            
             iconName = focused ? 'add-circle' : 'add-circle-outline';
           } else if (rn === settingsName) {
             iconName = focused ? 'person' : 'person-outline';
